@@ -13,26 +13,33 @@
     font-family: Arial, sans-serif;
     font-size: 12px; /* Smaller base font size */
     transition: right 0.3s ease;
-  }
-  
-  /* When hovering over the container, slide it in */
-  #chatgpt-toc-container:hover {
+}
+
+/* Reveal the panel on hover */
+#chatgpt-toc-container:hover {
     right: 0;
-  }
-  
-  /* TOC Title */
-  #chatgpt-toc-container h2 {
-    font-size: 16px; /* Slightly smaller title font */
-    margin: 0 0 10px;
-  }
-  
-  /* Handle: always visible, positioned on the left edge of the container */
-  #chatgpt-toc-handle {
+}
+
+/* Hide the title and list by default */
+#chatgpt-toc-container h2,
+#chatgpt-toc-list {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Show the title and list when hovered */
+#chatgpt-toc-container:hover h2,
+#chatgpt-toc-container:hover #chatgpt-toc-list {
+    opacity: 1;
+}
+
+/* Vertical handle styling */
+#chatgpt-toc-handle {
     position: absolute;
-    left: -20px;
+    left: -40px;
     top: 50%;
     transform: translateY(-50%);
-    width: 20px;
+    width: 40px;
     background: #0073e6;
     color: #fff;
     text-align: center;
@@ -41,27 +48,42 @@
     padding: 2px 0;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
-  }
-  
-  /* List style reset */
-  #chatgpt-toc-container ul {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+}
+
+/* Hide the handle when the panel is hovered */
+#chatgpt-toc-container:hover #chatgpt-toc-handle {
+    opacity: 0;
+}
+
+/* List style reset */
+#chatgpt-toc-list {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-  
-  /* Each TOC item */
-  #chatgpt-toc-container li {
+}
+
+/* Each TOC item */
+#chatgpt-toc-list li {
     margin-bottom: 5px;
-  }
-  
-  /* Link styles */
-  #chatgpt-toc-container a {
+}
+
+/* Link styles */
+#chatgpt-toc-list a {
     color: #0073e6;
     text-decoration: none;
-  }
-  
-  #chatgpt-toc-container a:hover {
+}
+
+#chatgpt-toc-list a:hover {
     text-decoration: underline;
-  }
-      
+}
+
+/* Style horizontal rules in the TOC */
+#chatgpt-toc-list hr {
+    border: none;
+    border-top: 1px solid #555;
+    margin: 8px 0;
+}
