@@ -33,23 +33,26 @@
         pinButton.style.zIndex = '10001';
         tocContainer.appendChild(pinButton);
 
-        // Pinned state variable.
-        let isPinned = false;
-        pinButton.addEventListener('click', function (e) {
-            // Prevent triggering hover events.
-            e.stopPropagation();
-            isPinned = !isPinned;
-            if (isPinned) {
-                tocContainer.classList.add('pinned');
-                pinButton.textContent = 'Unpin';
-            } else {
-                tocContainer.classList.remove('pinned');
-                pinButton.textContent = 'Pin';
-            }
-        });
-
         // Append the container to the document body.
         document.body.appendChild(tocContainer);
+
+        // Load saved pinned state from localStorage.
+        let isPinned = localStorage.getItem('chatgptTocPinned') === 'true';
+        if (isPinned) {
+            tocContainer.classList.add('pinned');
+            pinButton.textContent = 'Unpin';
+        }
+
+        // Set up the pin button click handler.
+        pinButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            // Toggle the pinned state.
+            const currentlyPinned = tocContainer.classList.toggle('pinned');
+            // Update button text.
+            pinButton.textContent = currentlyPinned ? 'Unpin' : 'Pin';
+            // Save the state to localStorage.
+            localStorage.setItem('chatgptTocPinned', currentlyPinned);
+        });
     }
 
     // Function to update the TOC list by processing each conversation article.
@@ -119,7 +122,6 @@
                     }
                     a.textContent = text;
                     a.href = '#' + heading.id;
-
                     li.appendChild(a);
                     tocList.appendChild(li);
                 });
