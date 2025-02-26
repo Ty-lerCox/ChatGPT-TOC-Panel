@@ -90,8 +90,18 @@
 #chatgpt-toc-list a {
     color: #0073e6;
     text-decoration: none;
+    display: block;
+    padding: 2px 4px;
 }
 
+/* Highlight active TOC link */
+#chatgpt-toc-list a.active {
+    background-color: #0073e6;
+    color: #fff;
+    border-radius: 4px;
+}
+
+/* Link hover */
 #chatgpt-toc-list a:hover {
     text-decoration: underline;
 }

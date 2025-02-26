@@ -72,13 +72,12 @@
                             'chatgpt-heading-' + articleIndex + '-' + index;
                     }
 
-                    // Determine the "level" for indentation and list type if applicable.
+                    // Determine the "level" for indentation.
                     let level;
                     let listType = null;
                     if (/^H[1-6]$/.test(heading.tagName)) {
                         level = parseInt(heading.tagName.substring(1));
                     } else {
-                        // For <strong> elements, calculate depth based on both OL and UL ancestors.
                         let depth = 0;
                         let current = heading;
                         while (current && current !== article) {
@@ -91,7 +90,6 @@
                             current = current.parentElement;
                         }
                         level = 2 + depth;
-                        // Determine list type from closest <li>'s parent.
                         const liParent = heading.closest('li');
                         if (liParent && liParent.parentElement) {
                             listType =
@@ -123,25 +121,63 @@
                             }
                         }
                     }
-
                     a.textContent = text;
                     a.href = '#' + heading.id;
                     li.appendChild(a);
                     tocList.appendChild(li);
                 });
 
+                // Insert a horizontal rule between articles (except after the last article).
                 if (articleIndex < articles.length - 1) {
                     const hr = document.createElement('hr');
                     tocList.appendChild(hr);
                 }
             }
         });
+
+        // Update active TOC item initially.
+        updateActiveTOCItem();
+    }
+
+    // Function to update the active TOC link based on scroll position.
+    function updateActiveTOCItem() {
+        const headings = document.querySelectorAll(
+            'article[data-testid] [id^="chatgpt-heading-"]'
+        );
+        let currentId = null;
+        let currentOffset = -Infinity;
+        const offsetThreshold = 150; // Adjust this value as needed.
+        headings.forEach((heading) => {
+            const rect = heading.getBoundingClientRect();
+            if (rect.top < offsetThreshold && rect.top > currentOffset) {
+                currentOffset = rect.top;
+                currentId = heading.id;
+            }
+        });
+
+        // Remove active class from all TOC links.
+        const tocLinks = document.querySelectorAll('#chatgpt-toc-list a');
+        tocLinks.forEach((link) => link.classList.remove('active'));
+
+        if (currentId) {
+            const activeLink = document.querySelector(
+                `#chatgpt-toc-list a[href="#${currentId}"]`
+            );
+            if (activeLink) {
+                activeLink.classList.add('active');
+                // Scroll the TOC list to ensure the active link is visible.
+                activeLink.scrollIntoView({ block: 'nearest' });
+            }
+        }
     }
 
     // Initial TOC build.
     updateTOC();
 
-    // Update TOC when new conversation articles or headings are added.
+    // Update TOC on scroll.
+    window.addEventListener('scroll', updateActiveTOCItem);
+
+    // Use a MutationObserver to update the TOC when new conversation articles or headings are added.
     const observer = new MutationObserver((mutations) => {
         let shouldUpdate = false;
         mutations.forEach((mutation) => {
