@@ -87,3 +87,14 @@
     border-top: 1px solid #555;
     margin: 8px 0;
 }
+
+/* Add offset for anchor jumps */
+article h1,
+article h2,
+article h3,
+article h4,
+article h5,
+article h6,
+article ol li p strong {
+    scroll-margin-top: 120px;
+}

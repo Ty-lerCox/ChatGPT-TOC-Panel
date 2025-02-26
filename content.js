@@ -91,7 +91,6 @@
                             text = num + '. ' + text;
                         }
                     }
-
                     a.textContent = text;
                     a.href = '#' + heading.id;
 
