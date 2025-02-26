@@ -22,6 +22,32 @@
         tocHandle.textContent = 'Table of Contents';
         tocContainer.appendChild(tocHandle);
 
+        // Create a pin button to let the user lock the panel in place.
+        const pinButton = document.createElement('button');
+        pinButton.id = 'toc-pin-button';
+        pinButton.textContent = 'Pin';
+        // Style the button in the top-right corner of the panel.
+        pinButton.style.position = 'absolute';
+        pinButton.style.top = '5px';
+        pinButton.style.right = '5px';
+        pinButton.style.zIndex = '10001';
+        tocContainer.appendChild(pinButton);
+
+        // Pinned state variable.
+        let isPinned = false;
+        pinButton.addEventListener('click', function (e) {
+            // Prevent triggering hover events.
+            e.stopPropagation();
+            isPinned = !isPinned;
+            if (isPinned) {
+                tocContainer.classList.add('pinned');
+                pinButton.textContent = 'Unpin';
+            } else {
+                tocContainer.classList.remove('pinned');
+                pinButton.textContent = 'Pin';
+            }
+        });
+
         // Append the container to the document body.
         document.body.appendChild(tocContainer);
     }

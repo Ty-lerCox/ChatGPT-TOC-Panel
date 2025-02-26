@@ -15,8 +15,9 @@
     transition: right 0.3s ease;
 }
 
-/* Reveal the panel on hover */
-#chatgpt-toc-container:hover {
+/* Reveal the panel on hover or when pinned */
+#chatgpt-toc-container:hover,
+#chatgpt-toc-container.pinned {
     right: 0;
 }
 
@@ -27,9 +28,11 @@
     transition: opacity 0.3s ease;
 }
 
-/* Show the title and list when hovered */
+/* Show the title and list when hovered or pinned */
 #chatgpt-toc-container:hover h2,
-#chatgpt-toc-container:hover #chatgpt-toc-list {
+#chatgpt-toc-container:hover #chatgpt-toc-list,
+#chatgpt-toc-container.pinned h2,
+#chatgpt-toc-container.pinned #chatgpt-toc-list {
     opacity: 1;
 }
 
@@ -54,9 +57,21 @@
     transition: opacity 0.3s ease;
 }
 
-/* Hide the handle when the panel is hovered */
-#chatgpt-toc-container:hover #chatgpt-toc-handle {
+/* Hide the handle when the panel is hovered or pinned */
+#chatgpt-toc-container:hover #chatgpt-toc-handle,
+#chatgpt-toc-container.pinned #chatgpt-toc-handle {
     opacity: 0;
+}
+
+/* Pin button styling */
+#toc-pin-button {
+    background: #0073e6;
+    color: #fff;
+    border: none;
+    padding: 2px 6px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
 /* List style reset */
