@@ -46,11 +46,8 @@
         // Set up the pin button click handler.
         pinButton.addEventListener('click', function (e) {
             e.stopPropagation();
-            // Toggle the pinned state.
             const currentlyPinned = tocContainer.classList.toggle('pinned');
-            // Update button text.
             pinButton.textContent = currentlyPinned ? 'Unpin' : 'Pin';
-            // Save the state to localStorage.
             localStorage.setItem('chatgptTocPinned', currentlyPinned);
         });
     }
@@ -60,73 +57,79 @@
         const tocList = document.getElementById('chatgpt-toc-list');
         tocList.innerHTML = '';
 
-        // Only process top-level conversation articles (using a data attribute as a filter)
+        // Process only top-level conversation articles.
         const articles = document.querySelectorAll('article[data-testid]');
         articles.forEach((article, articleIndex) => {
-            // Include both native headings and <strong> elements within ordered lists.
+            // Include native headings as well as <strong> elements within ordered and unordered lists.
             const selectors =
-                'h1:not(.sr-only), h2:not(.sr-only), h3:not(.sr-only), h4:not(.sr-only), h5:not(.sr-only), h6:not(.sr-only), ol li p strong:not(.sr-only)';
+                'h1:not(.sr-only), h2:not(.sr-only), h3:not(.sr-only), h4:not(.sr-only), h5:not(.sr-only), h6:not(.sr-only), ol li p strong:not(.sr-only), ul li p strong:not(.sr-only)';
             const headings = article.querySelectorAll(selectors);
 
-            // Only add entries if this article contains headings.
             if (headings.length) {
                 headings.forEach((heading, index) => {
-                    // If the heading doesn't have an id, assign one that is unique per article.
                     if (!heading.id) {
                         heading.id =
                             'chatgpt-heading-' + articleIndex + '-' + index;
                     }
 
-                    // Determine the "level" for indentation.
+                    // Determine the "level" for indentation and list type if applicable.
                     let level;
-                    let isOrderedList = false;
+                    let listType = null;
                     if (/^H[1-6]$/.test(heading.tagName)) {
                         level = parseInt(heading.tagName.substring(1));
                     } else {
-                        // For elements from ordered lists (e.g. <strong> in an <ol>), calculate depth.
+                        // For <strong> elements, calculate depth based on both OL and UL ancestors.
                         let depth = 0;
                         let current = heading;
                         while (current && current !== article) {
-                            if (current.tagName === 'OL') {
+                            if (
+                                current.tagName === 'OL' ||
+                                current.tagName === 'UL'
+                            ) {
                                 depth++;
                             }
                             current = current.parentElement;
                         }
                         level = 2 + depth;
-                        isOrderedList = true;
+                        // Determine list type from closest <li>'s parent.
+                        const liParent = heading.closest('li');
+                        if (liParent && liParent.parentElement) {
+                            listType =
+                                liParent.parentElement.tagName.toUpperCase();
+                        }
                     }
 
-                    // Create a list item and an anchor linking to the heading.
                     const li = document.createElement('li');
                     li.style.marginLeft = (level - 1) * 10 + 'px';
 
                     const a = document.createElement('a');
                     let text = heading.innerText.trim();
 
-                    // If this is from an ordered list, try to preserve numbering.
-                    if (isOrderedList) {
+                    // If heading is from a list, add numbering or bullet.
+                    if (!/^H[1-6]$/.test(heading.tagName) && listType) {
                         const liParent = heading.closest('li');
-                        if (
-                            liParent &&
-                            liParent.parentElement &&
-                            liParent.parentElement.tagName === 'OL'
-                        ) {
-                            const siblings = Array.from(
-                                liParent.parentElement.children
-                            ).filter(
-                                (child) => child.tagName.toLowerCase() === 'li'
-                            );
-                            const num = siblings.indexOf(liParent) + 1;
-                            text = num + '. ' + text;
+                        if (liParent && liParent.parentElement) {
+                            if (listType === 'OL') {
+                                const siblings = Array.from(
+                                    liParent.parentElement.children
+                                ).filter(
+                                    (child) =>
+                                        child.tagName.toLowerCase() === 'li'
+                                );
+                                const num = siblings.indexOf(liParent) + 1;
+                                text = num + '. ' + text;
+                            } else if (listType === 'UL') {
+                                text = '• ' + text;
+                            }
                         }
                     }
+
                     a.textContent = text;
                     a.href = '#' + heading.id;
                     li.appendChild(a);
                     tocList.appendChild(li);
                 });
 
-                // Insert a horizontal rule between articles (except after the last article)
                 if (articleIndex < articles.length - 1) {
                     const hr = document.createElement('hr');
                     tocList.appendChild(hr);
@@ -138,7 +141,7 @@
     // Initial TOC build.
     updateTOC();
 
-    // Use a MutationObserver to update the TOC when new conversation articles or headings are added.
+    // Update TOC when new conversation articles or headings are added.
     const observer = new MutationObserver((mutations) => {
         let shouldUpdate = false;
         mutations.forEach((mutation) => {
@@ -149,7 +152,8 @@
                             node.matches('article[data-testid]') ||
                             node.querySelector('article[data-testid]') ||
                             node.querySelector('h1, h2, h3, h4, h5, h6') ||
-                            node.querySelector('ol li p strong')
+                            node.querySelector('ol li p strong') ||
+                            node.querySelector('ul li p strong')
                         ) {
                             shouldUpdate = true;
                         }
