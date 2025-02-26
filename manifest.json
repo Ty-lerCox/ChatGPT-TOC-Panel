@@ -1,0 +1,13 @@
+{
+    "manifest_version": 3,
+    "name": "ChatGPT TOC Sidebar",
+    "version": "1.0",
+    "description": "Creates a right-side panel table of contents from ChatGPT’s output.",
+    "content_scripts": [
+        {
+            "matches": ["https://chatgpt.com/c/*"],
+            "js": ["content.js"],
+            "css": ["style.css"]
+        }
+    ]
+}
